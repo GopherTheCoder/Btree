@@ -2,7 +2,7 @@
 
 int main(int argc, char const *argv[])
 {
-    BTree t = NewTree(35, NULL, 3);
+    BTree t = NewTree(35, NULL);
 
     return 0;
 }
