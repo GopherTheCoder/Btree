@@ -22,12 +22,12 @@ BTree NewTree(BTNode *parentNode, int m)
     return node;
 }
 
-int __SimpleInsert(BTNode *node, KeyType key) // ç®€å•æ’å…¥ï¼Œè¾“å…¥ä¸ä¿è¯æœ‰åºï¼Œç»“æœå¯èƒ½éœ€åˆ†è£‚ï¼Œç”±è°ƒç”¨è€…è‡ªè¡Œåˆ¤æ–­ï¼Œè¿”å›å€¼ä¸ºæ’å…¥ä½ç½®
+int __SimpleInsert(BTNode *node, KeyType key) // ¼òµ¥²åÈë£¬ÊäÈë²»±£Ö¤ÓĞĞò£¬½á¹û¿ÉÄÜĞè·ÖÁÑ£¬ÓÉµ÷ÓÃÕß×ÔĞĞÅĞ¶Ï£¬·µ»ØÖµÎª²åÈëÎ»ÖÃ
 {
     node->n++;
-    // æŒ‰é¡ºåºæ’å…¥
+    // °´Ë³Ğò²åÈë
     int i;
-    for (i = 1; i < n; i++)
+    for (i = 1; i < node->n; i++)
         if (node->key[i] > key)
             break;
 
@@ -38,47 +38,47 @@ int __SimpleInsert(BTNode *node, KeyType key) // ç®€å•æ’å…¥ï¼Œè¾“å…¥ä¸ä¿è¯æ
     return i;
 }
 
-void __OrderedInsert(BTNode *node, KeyType key) // é¡ºåºæ’å…¥ï¼Œä»…åœ¨ç¡®ä¿è¾“å…¥æœ‰åºæ—¶ä½¿ç”¨
+void __OrderedInsert(BTNode *node, KeyType key) // Ë³Ğò²åÈë£¬½öÔÚÈ·±£ÊäÈëÓĞĞòÊ±Ê¹ÓÃ
 {
     node->n++;
 
     node->key[node->n] = key;
 }
 
-bool __Split(BTNode *node) // åˆ†è£‚ï¼Œä»…åœ¨éæ ¹ç»“ç‚¹åˆ†è£‚æ—¶ä½¿ç”¨
+bool __Split(BTNode *node) // ·ÖÁÑ£¬½öÔÚ·Ç¸ù½áµã·ÖÁÑÊ±Ê¹ÓÃ
 {
     int m = node->n;
     BTree parent = node->parent;
 
-    // æ–°ç»“ç‚¹å¤„ç†
-    BTree newNode = NewTree(parent, m);    // æ–°ç»“ç‚¹
-    for (int i = (m + 3) / 2; i <= m; i++) // æ’å…¥æ‰€æœ‰å…³é”®å­—
+    // ĞÂ½áµã´¦Àí
+    BTree newNode = NewTree(parent, m);    // ĞÂ½áµã
+    for (int i = (m + 3) / 2; i <= m; i++) // ²åÈëËùÓĞ¹Ø¼ü×Ö
         __OrderedInsert(newNode, node->key[i]);
-    for (int i = (m + 1) / 2; i <= m; i++) // æ’å…¥æ‰€æœ‰å­æ ‘
+    for (int i = (m + 1) / 2; i <= m; i++) // ²åÈëËùÓĞ×ÓÊ÷
         newNode->children[i - (m + 1) / 2] = node->children[i];
 
-    // çˆ¶ç»“ç‚¹å¤„ç†
-    int pos = __SimpleInsert(parent, node->key[(m + 1) / 2]); // ä¸­é—´å…³é”®å­—ä¸Šæ’è¿›çˆ¶ç»“ç‚¹
-    // æ–°ç»“ç‚¹æ’å…¥çˆ¶ç»“ç‚¹å­æ ‘æ­£ç¡®ä½ç½®
+    // ¸¸½áµã´¦Àí
+    int pos = __SimpleInsert(parent, node->key[(m + 1) / 2]); // ÖĞ¼ä¹Ø¼ü×ÖÉÏ²å½ø¸¸½áµã
+    // ĞÂ½áµã²åÈë¸¸½áµã×ÓÊ÷ÕıÈ·Î»ÖÃ
     for (int i = parent->n; i > pos; i--)
         parent->children[i] = parent->children[i - 1];
     parent->children[pos] = newNode;
-    parent->children[pos - 1] - node; // åŸç»“ç‚¹ä½ç½®
+    parent->children[pos - 1] = node; // Ô­½áµãÎ»ÖÃ
 
-    // åŸç»“ç‚¹å¤„ç†
-    node->n = (m - 1) / 2;                 // ä¿®æ”¹n
-    for (int i = (m + 1) / 2; i <= m; i++) // childrenæ— æ•ˆå­æ ‘ç½®ä¸ºNULL
+    // Ô­½áµã´¦Àí
+    node->n = (m - 1) / 2;                 // ĞŞ¸Än
+    for (int i = (m + 1) / 2; i <= m; i++) // childrenÎŞĞ§×ÓÊ÷ÖÃÎªNULL
         node->children[i] = NULL;
 
-    if (parent->n == m) // çˆ¶ç»“ç‚¹æ»¡åˆ¤æ–­
+    if (parent->n == m) // ¸¸½áµãÂúÅĞ¶Ï
         return false;
     else
         return true;
 }
 
-void __RootSplit(BTree root)    // æ ¹åˆ†è£‚ï¼Œä¿®æ”¹æŒ‡é’ˆ
+void __RootSplit(BTree root)    // ¸ù·ÖÁÑ£¬ĞŞ¸ÄÖ¸Õë
 {
     root->parent = NewTree(NULL, root->n);
     __Split(root);
-    root = root->parent;
+    *root = *(root->parent);
 }
