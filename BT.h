@@ -11,6 +11,14 @@ typedef struct BTNode
     struct BTNode **children;
 } BTNode, *BTree;
 
+BTree NewTree(BTNode *parentNode, int m);
+
+void __Insert(BTree &node, KeyType key, int m); // 综合插入，指定需插入结点，提供阶数m
+int __SimpleInsert(BTNode *node, KeyType key);   // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
+void __OrderedInsert(BTNode *node, KeyType key); // 顺序插入，仅在确保输入有序时使用
+bool __Split(BTNode *node);                      // 分裂，仅在非根结点分裂时使用
+void __RootSplit(BTree &root);                    // 根分裂，修改指针
+
 BTree NewTree(BTNode *parentNode, int m)
 {
     BTree node = (BTree)malloc(sizeof(BTNode));
@@ -20,6 +28,20 @@ BTree NewTree(BTNode *parentNode, int m)
     node->children = (BTree *)calloc(m + 1, sizeof(BTree));
 
     return node;
+}
+
+void __Insert(BTree &node, KeyType key, int m) // 综合插入，指定需插入结点，提供阶数m
+{
+    __SimpleInsert(node, key); // 先简单插入
+
+    while (node->n == m && node->parent != NULL) // 需分裂且不为根结点
+    {
+        node = node->parent;
+        __Split(node);
+    }
+
+    if (node->n == m && node->parent == NULL) // 分裂根结点
+        __RootSplit(node);
 }
 
 int __SimpleInsert(BTNode *node, KeyType key) // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
@@ -76,9 +98,9 @@ bool __Split(BTNode *node) // 分裂，仅在非根结点分裂时使用
         return true;
 }
 
-void __RootSplit(BTree root)    // 根分裂，修改指针
+void __RootSplit(BTree &root) // 根分裂，修改指针
 {
     root->parent = NewTree(NULL, root->n);
     __Split(root);
-    *root = *(root->parent);
+    root = root->parent;
 }

@@ -3,10 +3,9 @@
 int main(int argc, char const *argv[])
 {
     BTree t = NewTree(NULL,3);
-    __SimpleInsert(t, 30);
-    __SimpleInsert(t, 37);
-    __SimpleInsert(t, 26);
-    __RootSplit(t);
+    __Insert(t, 30, 3);
+    __Insert(t, 37, 3);
+    __Insert(t, 26, 3);
 
     return 0;
 }
