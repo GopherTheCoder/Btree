@@ -11,13 +11,14 @@ typedef struct BTNode
     struct BTNode **children;
 } BTNode, *BTree;
 
-BTree NewTree(BTNode *parentNode, int m);
+BTree NewTree(BTNode *parentNode, int m); // 创建新树，需提供阶数m
+bool Search(BTree t, KeyType key); // 搜索
 
-void __Insert(BTree &node, KeyType key, int m); // 综合插入，指定需插入结点，提供阶数m
+void __Insert(BTree &node, KeyType key, int m);  // 综合插入，指定需插入结点，提供阶数m
 int __SimpleInsert(BTNode *node, KeyType key);   // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
 void __OrderedInsert(BTNode *node, KeyType key); // 顺序插入，仅在确保输入有序时使用
 bool __Split(BTNode *node);                      // 分裂，仅在非根结点分裂时使用
-void __RootSplit(BTree &root);                    // 根分裂，修改指针
+void __RootSplit(BTree &root);                   // 根分裂，修改指针
 
 BTree NewTree(BTNode *parentNode, int m)
 {
@@ -28,6 +29,23 @@ BTree NewTree(BTNode *parentNode, int m)
     node->children = (BTree *)calloc(m + 1, sizeof(BTree));
 
     return node;
+}
+
+bool Search(BTree t, KeyType key)
+{
+    BTree node = t;
+    while (node != NULL)
+    {
+        int i = 1;
+        for (i = 1; node->key[i] < key && i < node->n; i++) // 找到不小于key的最大值
+            ;
+        if (node->key[i] == key)
+            return true;
+        else if (node->key[i] < key)
+            i++;
+        node = node->children[i - 1];
+    }
+    return false;
 }
 
 void __Insert(BTree &node, KeyType key, int m) // 综合插入，指定需插入结点，提供阶数m
