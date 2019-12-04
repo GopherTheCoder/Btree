@@ -13,13 +13,14 @@ typedef struct BTNode
 
 BTree NewTree(BTNode *parentNode, int m); // 创建新树，需提供阶数m
 bool Search(BTree t, KeyType key);        // 搜索
-bool Insert(BTree t, KeyType key);        // 添加结点，先查找，若已存在则返回false，否则插入并返回true
+bool Insert(BTree t, KeyType key, int m); // 添加结点，先查找，若已存在则返回false，否则插入并返回true，需提供阶数m
 
 void __Insert(BTree &node, KeyType key, int m);  // 综合插入，指定需插入结点，提供阶数m
 int __SimpleInsert(BTNode *node, KeyType key);   // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
 void __OrderedInsert(BTNode *node, KeyType key); // 顺序插入，仅在确保输入有序时使用
 bool __Split(BTNode *node);                      // 分裂，仅在非根结点分裂时使用
 void __RootSplit(BTree &root);                   // 根分裂，修改指针
+bool __Search(BTree t, KeyType key, BTree &pos); // 内部用搜索，找不到则返回要插入的结点指针
 
 BTree NewTree(BTNode *parentNode, int m)
 {
@@ -34,23 +35,20 @@ BTree NewTree(BTNode *parentNode, int m)
 
 bool Search(BTree t, KeyType key)
 {
-    BTree node = t;
-    while (node != NULL)
-    {
-        int i = 1;
-        for (i = 1; node->key[i] < key && i < node->n; i++) // 找到不小于key的最大值
-            ;
-        if (node->key[i] == key)
-            return true;
-        else if (node->key[i] < key)
-            i++;
-        node = node->children[i - 1];
-    }
-    return false;
+    BTree p;
+    return __Search(t, key, p);
 }
 
-bool Insert(BTree t, KeyType key)
+bool Insert(BTree t, KeyType key, int m)
 {
+    BTree pos;
+    if (__Search(t, key, pos))
+        return false;
+    else
+    {
+        __Insert(pos, key, m);
+        return true;
+    }
 }
 
 void __Insert(BTree &node, KeyType key, int m) // 综合插入，指定需插入结点，提供阶数m
@@ -126,4 +124,25 @@ void __RootSplit(BTree &root) // 根分裂，修改指针
     root->parent = NewTree(NULL, root->n);
     __Split(root);
     root = root->parent;
+}
+
+bool __Search(BTree t, KeyType key, BTree &pos) // 内部用搜索，找不到返回要插入的结点指针
+{
+    BTree node = t;
+    while (true)
+    {
+        int i = 1;
+        for (i = 1; node->key[i] < key && i < node->n; i++) // 找到不小于key的最大值
+            ;
+        if (node->key[i] == key)
+            return true;
+        else if (node->key[i] < key)
+            i++;
+        if (node->children[i - 1] == NULL)
+        {
+            pos = node;
+            return false;
+        }
+        node = node->children[i - 1];
+    }
 }
