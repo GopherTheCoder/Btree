@@ -11,16 +11,16 @@ typedef struct BTNode
     struct BTNode **children;
 } BTNode, *BTree;
 
-BTree NewTree(BTNode *parentNode, int m); // 创建新树，需提供阶数m
-bool Search(BTree t, KeyType key);        // 搜索
-bool Insert(BTree t, KeyType key, int m); // 添加结点，先查找，若已存在则返回false，否则插入并返回true，需提供阶数m
+BTree NewTree(BTNode *parentNode, int m);  // 创建新树，需提供阶数m
+bool Search(BTree t, KeyType key);         // 搜索
+bool Insert(BTree &t, KeyType key, int m); // 添加结点，先查找，若已存在则返回false，否则插入并返回true，需提供阶数m
 
-void __Insert(BTree &node, KeyType key, int m);  // 综合插入，指定需插入结点，提供阶数m
-int __SimpleInsert(BTNode *node, KeyType key);   // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
-void __OrderedInsert(BTNode *node, KeyType key); // 顺序插入，仅在确保输入有序时使用
-bool __Split(BTNode *node);                      // 分裂，仅在非根结点分裂时使用
-void __RootSplit(BTree &root);                   // 根分裂，修改指针
-bool __Search(BTree t, KeyType key, BTree &pos); // 内部用搜索，找不到则返回要插入的结点指针
+void __Insert(BTree &node, KeyType key, int m, BTree &root); // 综合插入，指定需插入结点，提供阶数m，提供root
+int __SimpleInsert(BTNode *node, KeyType key);               // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
+void __OrderedInsert(BTNode *node, KeyType key);             // 顺序插入，仅在确保输入有序时使用
+bool __Split(BTNode *node);                                  // 分裂，仅在非根结点分裂时使用
+void __RootSplit(BTree &root);                               // 根分裂，修改指针
+bool __Search(BTree t, KeyType key, BTree &pos);             // 内部用搜索，找不到则返回要插入的结点指针
 
 BTree NewTree(BTNode *parentNode, int m)
 {
@@ -39,19 +39,19 @@ bool Search(BTree t, KeyType key)
     return __Search(t, key, p);
 }
 
-bool Insert(BTree t, KeyType key, int m)
+bool Insert(BTree &t, KeyType key, int m)
 {
     BTree pos;
     if (__Search(t, key, pos))
         return false;
     else
     {
-        __Insert(pos, key, m);
+        __Insert(pos, key, m, t);
         return true;
     }
 }
 
-void __Insert(BTree &node, KeyType key, int m) // 综合插入，指定需插入结点，提供阶数m
+void __Insert(BTree &node, KeyType key, int m, BTree &root) // 综合插入，指定需插入结点，提供阶数m，提供root
 {
     __SimpleInsert(node, key); // 先简单插入
 
@@ -62,7 +62,7 @@ void __Insert(BTree &node, KeyType key, int m) // 综合插入，指定需插入
     }
 
     if (node->n == m && node->parent == NULL) // 分裂根结点
-        __RootSplit(node);
+        __RootSplit(root);
 }
 
 int __SimpleInsert(BTNode *node, KeyType key) // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
