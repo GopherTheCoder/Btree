@@ -11,9 +11,11 @@ typedef struct BTNode
     struct BTNode **children;
 } BTNode, *BTree;
 
-BTree NewTree(BTNode *parentNode, int m);  // 创建新树，需提供阶数m
-bool Search(BTree t, KeyType key);         // 搜索
-bool Insert(BTree &t, KeyType key, int m); // 添加结点，先查找，若已存在则返回false，否则插入并返回true，需提供阶数m
+BTree NewTree(BTNode *parentNode, int m);    // 创建新树，需提供阶数m
+bool Search(BTree t, KeyType key);           // 搜索
+bool Insert(BTree &t, KeyType key, int m);   // 添加结点，先查找，若已存在则返回false，否则插入并返回true，需提供阶数m
+bool Delete(BTree &t, KeyType key);          // 删除结点
+void Traverse(BTree t, void Visit(KeyType)); // 升序遍历（递归）
 
 void __Insert(BTree &node, KeyType key, int m, BTree &root); // 综合插入，指定需插入结点，提供阶数m，提供root
 int __SimpleInsert(BTNode *node, KeyType key);               // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
@@ -48,6 +50,19 @@ bool Insert(BTree &t, KeyType key, int m)
     {
         __Insert(pos, key, m, t);
         return true;
+    }
+}
+
+void Traverse(BTree t, void Visit(KeyType)) // 升序遍历（递归）
+{
+    if (t)
+    {
+        Traverse(t->children[0],Visit);
+        for (int i = 1; i <= t->n; i++)
+        {
+            Visit(t->key[i]);
+            Traverse(t->children[i],Visit);
+        }
     }
 }
 
