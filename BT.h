@@ -5,7 +5,6 @@ using namespace std;
 typedef int KeyType;
 typedef struct BTNode
 {
-    int n;
     struct BTNode *parent;
     KeyType *key;
     struct BTNode **children;
@@ -30,9 +29,9 @@ void __Delete_Terminal(BTNode *node, KeyType key, int m);    // 终端结点删�
 BTree NewTree(BTNode *parentNode, int m)
 {
     BTree node = (BTree)malloc(sizeof(BTNode));
-    node->n = 0;
     node->parent = parentNode;
     node->key = (KeyType *)calloc(m + 1, sizeof(KeyType));
+    node->key[0] = 0;
     node->children = (BTree *)calloc(m + 1, sizeof(BTree));
 
     return node;
@@ -77,7 +76,7 @@ void Traverse(BTree t, void Visit(KeyType)) // 升序遍历（递归）
     if (t)
     {
         Traverse(t->children[0], Visit);
-        for (int i = 1; i <= t->n; i++)
+        for (int i = 1; i <= t->key[0]; i++)
         {
             Visit(t->key[i]);
             Traverse(t->children[i], Visit);
@@ -89,26 +88,26 @@ void __Insert(BTree &node, KeyType key, int m, BTree &root) // 综合插入，�
 {
     __Insert_Simple(node, key); // 先简单插入
 
-    while (node->n == m && node->parent != NULL) // 需分裂且不为根结点
+    while (node->key[0] == m && node->parent != NULL) // 需分裂且不为根结点
     {
         __Split(node);
         node = node->parent;
     }
 
-    if (node->n == m && node->parent == NULL) // 分裂根结点
+    if (node->key[0] == m && node->parent == NULL) // 分裂根结点
         __Split_Root(root);
 }
 
 int __Insert_Simple(BTNode *node, KeyType key) // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
 {
-    node->n++;
+    node->key[0]++;
     // 按顺序插入
     int i;
-    for (i = 1; i < node->n; i++)
+    for (i = 1; i < node->key[0]; i++)
         if (node->key[i] > key)
             break;
 
-    for (int j = node->n; j > i; j--)
+    for (int j = node->key[0]; j > i; j--)
         node->key[j] = node->key[j - 1];
     node->key[i] = key;
 
@@ -117,14 +116,14 @@ int __Insert_Simple(BTNode *node, KeyType key) // 简单插入，输入不保证
 
 void __Insert_Ordered(BTNode *node, KeyType key) // 顺序插入，仅在确保输入有序时使用
 {
-    node->n++;
+    node->key[0]++;
 
-    node->key[node->n] = key;
+    node->key[node->key[0]] = key;
 }
 
 bool __Split(BTNode *node) // 分裂，仅在非根结点分裂时使用
 {
-    int m = node->n;
+    int m = node->key[0];
     BTree parent = node->parent;
 
     // 新结点处理
@@ -141,17 +140,17 @@ bool __Split(BTNode *node) // 分裂，仅在非根结点分裂时使用
     // 父结点处理
     int pos = __Insert_Simple(parent, node->key[(m + 1) / 2]); // 中间关键字上插进父结点
     // 新结点插入父结点子树正确位置
-    for (int i = parent->n; i > pos; i--)
+    for (int i = parent->key[0]; i > pos; i--)
         parent->children[i] = parent->children[i - 1];
     parent->children[pos] = newNode;
     parent->children[pos - 1] = node; // 原结点位置
 
     // 原结点处理
-    node->n = (m - 1) / 2;                 // 修改n
+    node->key[0] = (m - 1) / 2;                 // 修改n
     for (int i = (m + 1) / 2; i <= m; i++) // children无效子树置为NULL
         node->children[i] = NULL;
 
-    if (parent->n == m) // 父结点满判断
+    if (parent->key[0] == m) // 父结点满判断
         return false;
     else
         return true;
@@ -159,7 +158,7 @@ bool __Split(BTNode *node) // 分裂，仅在非根结点分裂时使用
 
 void __Split_Root(BTree &root) // 根分裂，修改指针
 {
-    root->parent = NewTree(NULL, root->n);
+    root->parent = NewTree(NULL, root->key[0]);
     __Split(root);
     root = root->parent;
 }
@@ -170,7 +169,7 @@ bool __Search(BTree t, KeyType key, BTree &pos) // 内部用搜索，找到返�
     while (true)
     {
         int i = 1;
-        for (i = 1; node->key[i] < key && i < node->n; i++) // 找到不小于key的最大值
+        for (i = 1; node->key[i] < key && i < node->key[0]; i++) // 找到不小于key的最大值
             ;
         if (node->key[i] == key)
         {
@@ -194,13 +193,13 @@ void __Delete_Simple(BTNode *node, KeyType key) // 简单删除，提供目标�
     for (pos; node->key[pos] != key; pos++)
         ;
 
-    for (int i = pos + 1; i <= node->n; i++)
+    for (int i = pos + 1; i <= node->key[0]; i++)
     {
         node->key[i - 1] = node->key[i];
         node->children[i - 1] = node->children[i];
     }
 
-    node->n--;
+    node->key[0]--;
 }
 
 void __Delete_NotTerminal(BTNode *node, KeyType key, int m) // 非终端结点删除
@@ -219,9 +218,9 @@ void __Delete_NotTerminal(BTNode *node, KeyType key, int m) // 非终端结点�
 
 void __Delete_Terminal(BTNode *node, KeyType key, int m) // 终端结点删除
 {
-    if (node->n >= m / 2)
+    if (node->key[0] >= m / 2)
         __Delete_Simple(node, key);
-    else if (node->n == m / 2 - 1)
+    else if (node->key[0] == m / 2 - 1)
     {
         BTNode *parent = node->parent;
         int posToDelete = 1;
@@ -233,19 +232,19 @@ void __Delete_Terminal(BTNode *node, KeyType key, int m) // 终端结点删除
 
         BTNode *lb = parent->children[posInParent - 1],
                *rb = parent->children[posInParent + 1];
-        if (posInParent < parent->n && rb->n > m / 2 - 1) // 右brother to parent
+        if (posInParent < parent->key[0] && rb->key[0] > m / 2 - 1) // 右brother to parent
         {
             node->key[posToDelete] = parent->key[posInParent + 1];
             parent->key[posInParent + 1] = rb->key[1];
             __Delete_Simple(rb, rb->key[1]);
         }
-        else if (posInParent > 0 && lb->n > m / 2 - 1) // 左brother to parent
+        else if (posInParent > 0 && lb->key[0] > m / 2 - 1) // 左brother to parent
         {
             node->key[posToDelete] = parent->key[posInParent];
-            parent->key[posInParent] = lb->key[lb->n];
-            __Delete_Simple(lb, lb->key[lb->n]);
+            parent->key[posInParent] = lb->key[lb->key[0]];
+            __Delete_Simple(lb, lb->key[lb->key[0]]);
         }
-        else if (posInParent < parent->n) // parent to 右
+        else if (posInParent < parent->key[0]) // parent to 右
         {
         }
         else // parent to 左
