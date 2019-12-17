@@ -146,7 +146,7 @@ bool __Split(BTNode *node) // 分裂，仅在非根结点分裂时使用
     parent->children[pos - 1] = node; // 原结点位置
 
     // 原结点处理
-    node->key[0] = (m - 1) / 2;                 // 修改n
+    node->key[0] = (m - 1) / 2;            // 修改n
     for (int i = (m + 1) / 2; i <= m; i++) // children无效子树置为NULL
         node->children[i] = NULL;
 
@@ -218,9 +218,9 @@ void __Delete_NotTerminal(BTNode *node, KeyType key, int m) // 非终端结点�
 
 void __Delete_Terminal(BTNode *node, KeyType key, int m) // 终端结点删除
 {
-    if (node->key[0] >= m / 2)
+    if (node->key[0] >= (m + 1) / 2)
         __Delete_Simple(node, key);
-    else if (node->key[0] == m / 2 - 1)
+    else if (node->key[0] == (m + 1) / 2 - 1)
     {
         BTNode *parent = node->parent;
         int posToDelete = 1;
@@ -232,13 +232,13 @@ void __Delete_Terminal(BTNode *node, KeyType key, int m) // 终端结点删除
 
         BTNode *lb = parent->children[posInParent - 1],
                *rb = parent->children[posInParent + 1];
-        if (posInParent < parent->key[0] && rb->key[0] > m / 2 - 1) // 右brother to parent
+        if (posInParent < parent->key[0] && rb->key[0] > (m + 1) / 2 - 1) // 右brother to parent
         {
             node->key[posToDelete] = parent->key[posInParent + 1];
             parent->key[posInParent + 1] = rb->key[1];
             __Delete_Simple(rb, rb->key[1]);
         }
-        else if (posInParent > 0 && lb->key[0] > m / 2 - 1) // 左brother to parent
+        else if (posInParent > 0 && lb->key[0] > (m + 1) / 2 - 1) // 左brother to parent
         {
             node->key[posToDelete] = parent->key[posInParent];
             parent->key[posInParent] = lb->key[lb->key[0]];
@@ -246,9 +246,11 @@ void __Delete_Terminal(BTNode *node, KeyType key, int m) // 终端结点删除
         }
         else if (posInParent < parent->key[0]) // parent to 右
         {
+            // TODO
         }
         else // parent to 左
         {
+            // TODO
         }
     }
 }

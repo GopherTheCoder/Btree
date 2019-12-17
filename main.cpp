@@ -24,5 +24,8 @@ int main(int argc, char const *argv[])
     Insert(t, 70, M);
     Insert(t, 12, M);
 
+    Delete(t, 12, M);
+    Delete(t, 45, M);
+
     return 0;
 }
