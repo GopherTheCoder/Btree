@@ -131,8 +131,12 @@ bool __Split(BTNode *node) // 分裂，仅在非根结点分裂时使用
     BTree newNode = NewTree(parent, m);    // 新结点
     for (int i = (m + 3) / 2; i <= m; i++) // 插入所有关键字
         __Insert_Ordered(newNode, node->key[i]);
-    for (int i = (m + 1) / 2; i <= m; i++) // 插入所有子树
+    for (int i = (m + 1) / 2; i <= m; i++) // 插入所有子树并修改其parent
+    {
         newNode->children[i - (m + 1) / 2] = node->children[i];
+        if (newNode->children[i - (m + 1) / 2])
+            newNode->children[i - (m + 1) / 2]->parent = newNode;
+    }
 
     // 父结点处理
     int pos = __Insert_Simple(parent, node->key[(m + 1) / 2]); // 中间关键字上插进父结点
