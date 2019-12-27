@@ -16,7 +16,6 @@
 + **__Delete_Simple**：简单删除，提供目标节点及目标key，删后不做任何处理
 + **__Delete_NotTerminal**：非终端结点删除
 + **__Delete_Terminal**：终端结点删除
-+ **__Unite**：结点合并
 # TODO
 + [x] 插入问题，需判断插入进父结点的位置（可能不为尾部）
 + [x] 根结点分裂问题
