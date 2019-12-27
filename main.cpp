@@ -1,5 +1,7 @@
+#pragma once
 #include <iostream>
 #include "BT.h"
+#include "Graphviz.h"
 
 #define M 3
 
@@ -11,7 +13,6 @@ void visit(KeyType key)
 int main(int argc, char const *argv[])
 {
     BTree t = NewTree(NULL, M);
-    BTree p;
     Insert(t, 45, M);
     Insert(t, 24, M);
     Insert(t, 53, M);
@@ -24,8 +25,13 @@ int main(int argc, char const *argv[])
     Insert(t, 70, M);
     Insert(t, 12, M);
 
-    Delete(t, 12, M);
-    Delete(t, 45, M);
+    // Delete(t, 12, M);
+    // Delete(t, 45, M);
+
+    GraphRes *G = InitGraph();
+    CreateGraph(t, G->g, NULL);
+    RenderGraph(G);
+    FreeGraph(G);
 
     return 0;
 }
