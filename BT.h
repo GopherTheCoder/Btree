@@ -18,15 +18,16 @@ bool Insert(BTree &t, KeyType key, int m);   // 添加结点，先查找，若�
 bool Delete(BTree &t, KeyType key, int m);   // 删除结点，先查找，若不存在则返回false，否则删除并返回true
 void Traverse(BTree t, void Visit(KeyType)); // 升序遍历（递归）
 
-void __Insert(BTree &node, KeyType key, int m, BTree &root); // 综合插入，指定需插入结点，提供阶数m，提供root
-int __Insert_Simple(BTNode *node, KeyType key);              // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
-void __Insert_Ordered(BTNode *node, KeyType key);            // 顺序插入，仅在确保输入有序时使用
-bool __Split(BTNode *node);                                  // 分裂，仅在非根结点分裂时使用
-void __Split_Root(BTree &root);                              // 根分裂，修改指针
-bool __Search(BTree t, KeyType key, BTree &pos);             // 内部用搜索，找到返回所在结点，找不到则返回要插入的结点指针
-void __Delete_Simple(BTNode *node, KeyType key);             // 简单删除，提供目标节点及目标key，删后不做任何处理
-void __Delete_NotTerminal(BTNode *node, KeyType key, int m); // 非终端结点删除
-void __Delete_Terminal(BTNode *node, KeyType key, int m);    // 终端结点删除
+void __Insert(BTree &node, KeyType key, int m, BTree &root);           // 综合插入，指定需插入结点，提供阶数m，提供root
+int __Insert_Simple(BTNode *node, KeyType key);                        // 简单插入，输入不保证有序，结果可能需分裂，由调用者自行判断，返回值为插入位置
+void __Insert_Ordered(BTNode *node, KeyType key);                      // 顺序插入，仅在确保输入有序时使用
+bool __Split(BTNode *node);                                            // 分裂，仅在非根结点分裂时使用
+void __Split_Root(BTree &root);                                        // 根分裂，修改指针
+bool __Search(BTree t, KeyType key, BTree &pos);                       // 内部用搜索，找到返回所在结点，找不到则返回要插入的结点指针
+void __Delete_Simple(BTNode *node, KeyType key);                       // 简单删除，提供目标节点及目标key，删后不做任何处理
+void __Delete_NotTerminal(BTNode *node, KeyType key, int m, BTree &t); // 非终端结点删除
+void __Delete_Terminal(BTNode *node, KeyType key, int m, BTree &t);    // 终端结点删除
+void __Delete_Root(BTree &t, KeyType key);                             // 根结点删除
 
 BTree NewTree(BTNode *parentNode, int m)
 {
@@ -63,9 +64,9 @@ bool Delete(BTree &t, KeyType key, int m) // 删除结点，先查找，若不�
     if (__Search(t, key, p))
     {
         if (p->children[0])
-            __Delete_NotTerminal(p, key, m);
+            __Delete_NotTerminal(p, key, m, t);
         else
-            __Delete_Terminal(p, key, m);
+            __Delete_Terminal(p, key, m, t);
 
         return true;
     }
@@ -204,7 +205,7 @@ void __Delete_Simple(BTNode *node, KeyType key) // 简单删除，提供目标�
     node->key[0]--;
 }
 
-void __Delete_NotTerminal(BTNode *node, KeyType key, int m) // 非终端结点删除
+void __Delete_NotTerminal(BTNode *node, KeyType key, int m, BTree &t) // 非终端结点删除
 {
     int pos = 1;
     for (pos; node->key[pos] != key; pos++)
@@ -215,16 +216,21 @@ void __Delete_NotTerminal(BTNode *node, KeyType key, int m) // 非终端结点�
         ;
 
     node->key[pos] = next->key[1];
-    __Delete_Terminal(next, next->key[1], m);
+    __Delete_Terminal(next, next->key[1], m, t);
 }
 
-void __Delete_Terminal(BTNode *node, KeyType key, int m) // 终端结点删除
+void __Delete_Terminal(BTNode *node, KeyType key, int m, BTree &t) // 终端结点删除
 {
     if (node->key[0] >= (m + 1) / 2)
         __Delete_Simple(node, key);
     else if (node->key[0] == (m + 1) / 2 - 1)
     {
         BTNode *parent = node->parent;
+        if (!parent)
+        {
+            __Delete_Root(t, key);
+            return;
+        }
         int posToDelete = 1;
         for (posToDelete; node->key[posToDelete] != key; posToDelete++)
             ;
@@ -246,13 +252,62 @@ void __Delete_Terminal(BTNode *node, KeyType key, int m) // 终端结点删除
             parent->key[posInParent] = lb->key[lb->key[0]];
             __Delete_Simple(lb, lb->key[lb->key[0]]);
         }
-        else if (posInParent < parent->key[0]) // parent to 右
+        else if (posInParent > 0) // parent to 左
         {
-            // TODO
+            __Delete_Simple(node, key);
+
+            int toAdd = node->key[0] + 1;
+
+            lb->key[lb->key[0] + 1] = parent->key[posInParent];
+
+            for (toAdd; toAdd > 1; toAdd--)
+            {
+                lb->key[lb->key[0] + toAdd] = node->key[toAdd - 1];
+                lb->children[lb->key[0] + toAdd] = node->children[toAdd - 1];
+            }
+            lb->children[lb->key[0] + 1] = node->children[0];
+            lb->key[0] += toAdd;
+
+            free(node);
+            parent->children[posInParent] = NULL;
+
+            __Delete_Terminal(parent, parent->key[posInParent], m, t);
         }
-        else // parent to 左
+        else // parent to 右
         {
-            // TODO
+            __Delete_Simple(node, key);
+
+            int toAdd = node->key[0] + 1;
+            for (int i = rb->key[0] + toAdd; i >= toAdd + 1; i--)
+            {
+                rb->key[i] = rb->key[i - toAdd];
+                rb->children[i] = rb->children[i - toAdd];
+            }
+            rb->children[toAdd] = rb->children[0];
+            rb->key[0] += toAdd;
+
+            rb->key[toAdd] = parent->key[posInParent + 1];
+
+            for (toAdd; toAdd > 1; toAdd--)
+            {
+                rb->key[toAdd - 1] = node->key[toAdd - 1];
+                rb->children[toAdd - 1] = node->children[toAdd - 1];
+            }
+            rb->children[0] = node->children[0];
+
+            free(node);
+            parent->children[posInParent + 1] = NULL;
+            parent->children[posInParent] = rb;
+
+            __Delete_Terminal(parent, parent->key[posInParent + 1], m, t);
         }
     }
+}
+
+void __Delete_Root(BTree &t, KeyType key) // 根结点删除
+{
+    if (t->key[0] > 1)
+        __Delete_Simple(t, key);
+    else
+        t = t->children[0] ? t->children[0] : t->children[1];
 }
