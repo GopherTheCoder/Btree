@@ -1,4 +1,4 @@
-#include "headers.h"
+#include "Graphviz.h"
 
 GraphRes *Graph::InitGraph()
 {

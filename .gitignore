@@ -1,2 +1,7 @@
 .build/
 *.png
+Btree.pro*
+.qmake.stash
+debug/
+release/
+Makefile*

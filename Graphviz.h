@@ -1,6 +1,7 @@
 #pragma once
-#pragma warning(disable : 4996)
+//#pragma warning(disable : 4996)
 
+#include "BT.h"
 #include <gvc.h>
 #include <cgraph.h>
 #include <stdlib.h>
