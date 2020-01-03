@@ -1,6 +1,5 @@
 #include "widget.h"
 #include <QImageReader>
-#include <QImage>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QSizePolicy>
@@ -31,12 +30,13 @@ Widget::Widget(QWidget *parent)
 
     QFormLayout *formLayout = new QFormLayout;
     //formLayout->setFormAlignment(Qt::AlignRight);
+    //formLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
     formLayout->addRow(insertLine,insertButton);
     formLayout->addRow(deleteLine,deleteButton);
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
-    mainLayout->setSpacing(0);
-    mainLayout->addWidget(graphLabel);
+    //mainLayout->setSpacing(0);
+    mainLayout->addWidget(graphLabel,1);
     mainLayout->addLayout(formLayout);
     setLayout(mainLayout);
 }
@@ -66,5 +66,22 @@ void Widget::displayImage()
     Graph::RenderGraph(G);
     Graph::FreeGraph(G);
 
-    graphLabel->setPixmap(QPixmap::fromImageReader(new QImageReader("output.png")));
+    image = ir->read();
+
+    updatePixmap();
+}
+
+void Widget::resizeEvent(QResizeEvent *event)
+{
+    if (graphLabel->width())
+    updatePixmap();
+
+    //printf("%d %d\n%d %d\n\n",graphLabel->width(),graphLabel->height(),pixmap.width(),pixmap.height());
+    QWidget::resizeEvent(event);
+}
+
+void Widget::updatePixmap()
+{
+    pixmap = QPixmap::fromImage(image).scaledToWidth(graphLabel->width()-1);
+    graphLabel->setPixmap(pixmap);
 }

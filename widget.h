@@ -5,6 +5,9 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPixmap>
+#include <QImage>
+#include <QImageReader>
 
 #include "BT.h"
 #include "Graphviz.h"
@@ -26,12 +29,18 @@ private slots:
 
 private:
     void displayImage();
+    void resizeEvent(QResizeEvent *event) override;
+    void updatePixmap();
 
     QLabel *graphLabel;
     QPushButton *insertButton;
     QLineEdit *insertLine;
     QPushButton *deleteButton;
     QLineEdit *deleteLine;
+
+    QPixmap pixmap;
+    QImage image;
+    QImageReader *ir = new QImageReader("output.png");
 
     BTree t;
     int m;
