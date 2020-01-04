@@ -4,9 +4,6 @@
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
 {
-    m = 3;
-    t = BT::NewTree(NULL,m);
-
     pixmap = *new QPixmap("welcome.png");
     pixmap = pixmap.scaled(200,200,Qt::KeepAspectRatio,Qt::SmoothTransformation);
     graphLabel = new QLabel;
@@ -15,20 +12,30 @@ Widget::Widget(QWidget *parent)
     graphLabel->setScaledContents(true);
     graphLabel->setPixmap(pixmap);
 
+    MButton = new QPushButton("设置M");
+    MButton->setFixedWidth(100);
+    connect(MButton,SIGNAL(clicked()),this,SLOT(on_MButton_clicked()));
+    MLine = new QLineEdit;
+    MLine->setFixedWidth(150);
+
     insertButton = new QPushButton("插入");
     insertButton->setFixedWidth(100);
     connect(insertButton,SIGNAL(clicked()),this,SLOT(on_insertButton_clicked()));
+    insertButton->setEnabled(false);
+    insertLine = new QLineEdit;
+    insertLine->setFixedWidth(150);
+    insertLine->setEnabled(false);
 
     deleteButton = new QPushButton("删除");
     deleteButton->setFixedWidth(100);
     connect(deleteButton,SIGNAL(clicked()),this,SLOT(on_deleteButton_clicked()));
-
-    insertLine = new QLineEdit;
-    insertLine->setFixedWidth(150);
+    deleteButton->setEnabled(false);
     deleteLine = new QLineEdit;
     deleteLine->setFixedWidth(150);
+    deleteLine->setEnabled(false);
 
     QFormLayout *formLayout = new QFormLayout;
+    formLayout->addRow(MLine,MButton);
     formLayout->addRow(insertLine,insertButton);
     formLayout->addRow(deleteLine,deleteButton);
 
@@ -50,6 +57,19 @@ void Widget::on_deleteButton_clicked()
     BT::Delete(t,deleteLine->text().toInt(),m);
     deleteLine->clear();
     displayImage();
+}
+
+void Widget::on_MButton_clicked()
+{
+    m = MLine->text().toInt();
+    t = BT::NewTree(NULL,m);
+
+    MButton->setEnabled(false);
+    MLine->setEnabled(false);
+    insertButton->setEnabled(true);
+    insertLine->setEnabled(true);
+    deleteButton->setEnabled(true);
+    deleteLine->setEnabled(true);
 }
 
 void Widget::displayImage()

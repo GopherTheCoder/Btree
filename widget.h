@@ -22,11 +22,14 @@ public:
 private slots:
     void on_insertButton_clicked();
     void on_deleteButton_clicked();
+    void on_MButton_clicked();
 
 private:
     void displayImage();
 
     QLabel *graphLabel;
+    QPushButton *MButton;
+    QLineEdit *MLine;
     QPushButton *insertButton;
     QLineEdit *insertLine;
     QPushButton *deleteButton;
