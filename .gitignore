@@ -1,5 +1,7 @@
 .build/
+*.ico
 *.png
+*.rc
 Btree.pro*
 .qmake.stash
 debug/
