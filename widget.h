@@ -25,6 +25,7 @@ private slots:
     void on_MButton_clicked();
 
 private:
+    void resizeEvent(QResizeEvent *event) override;
     void displayImage();
 
     QLabel *graphLabel;

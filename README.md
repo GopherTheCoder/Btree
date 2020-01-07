@@ -25,7 +25,7 @@
 + [x] Insert怎么又有问题？！
 + [x] Delete还没写完，更没测试
 + [x] key[0]替代n
-+ [ ] resize
++ [x] resize
 ***
 > ## 动态查找表基本操作
 > + **InitDSTable(&DT);**  

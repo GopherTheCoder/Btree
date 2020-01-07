@@ -1,4 +1,5 @@
 #include "Graphviz.h"
+#include <string>
 
 GraphRes *Graph::InitGraph()
 {
@@ -22,16 +23,13 @@ void Graph::FreeGraph(GraphRes *G)
 Agnode_t *Graph::InitNode(BTree t, Agraph_t *g)
 {
     Agnode_t *n = agnode(g, NULL, TRUE);
-    char str[20];
-    itoa(t->key[1], str, 10);
+    std::string s = std::to_string(t->key[1]);
     for (int i = 2; i <= t->key[0]; i++)
     {
-        char s[3];
-        itoa(t->key[i], s, 10);
-        strcat(str, "|");
-        strcat(str, s);
+        s += "|";
+        s += std::to_string(t->key[i]);
     }
-    agset(n, (char *)"label", str);
+    agset(n, (char *)"label", (char *)s.c_str());
 
     return n;
 }

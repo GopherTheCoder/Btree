@@ -80,9 +80,8 @@ int BT::__Insert_Simple(BTNode *node, KeyType key) // 简单插入，输入不保证有序，
     node->key[0]++;
     // 按顺序插入
     int i;
-    for (i = 1; i < node->key[0]; i++)
-        if (node->key[i] > key)
-            break;
+    for (i = 1; node->key[i] < key && i < node->key[0]; i++) // 找到不小于key的最大值
+        ;
 
     for (int j = node->key[0]; j > i; j--)
         node->key[j] = node->key[j - 1];

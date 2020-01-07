@@ -4,12 +4,10 @@
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
 {
-    pixmap = *new QPixmap("welcome.png");
-    pixmap = pixmap.scaled(200,200,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    pixmap = *new QPixmap("logo.png");
     graphLabel = new QLabel;
     graphLabel->setAlignment(Qt::AlignCenter);
-    graphLabel->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
-    graphLabel->setScaledContents(true);
+    graphLabel->setMinimumSize(pixmap.size());
     graphLabel->setPixmap(pixmap);
 
     MButton = new QPushButton("设置M");
@@ -72,6 +70,13 @@ void Widget::on_MButton_clicked()
     deleteLine->setEnabled(true);
 }
 
+void Widget::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+
+    graphLabel->setPixmap(pixmap.scaled(graphLabel->size(),Qt::KeepAspectRatio));
+}
+
 void Widget::displayImage()
 {
     GraphRes *G = Graph::InitGraph();
@@ -81,5 +86,6 @@ void Widget::displayImage()
 
     pixmap = *new QPixmap("output.png");
 
-    graphLabel->setPixmap(pixmap);
+    graphLabel->setMinimumSize(pixmap.size());
+    graphLabel->setPixmap(pixmap.scaled(graphLabel->size(),Qt::KeepAspectRatio));
 }
