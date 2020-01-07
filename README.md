@@ -1,5 +1,10 @@
 + **使用Qt实现UI**
 + **调用了第三方库Graphviz**
+***
+# Known issues
+## 会导致程序崩溃
++ 删除树中最后一个节点
+***
 # 函数功能
 + **NewTree**：创建新树，需提供阶数m
 + **Search**：搜索，找到则返回true，否则false
