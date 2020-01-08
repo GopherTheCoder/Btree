@@ -30,12 +30,16 @@ private:
     void updatePixmep(const char*);
 
     QLabel *graphLabel;
+
     QPushButton *MButton;
     QLineEdit *MLine;
     QPushButton *insertButton;
     QLineEdit *insertLine;
     QPushButton *deleteButton;
     QLineEdit *deleteLine;
+
+    QLabel *actionLabel;
+    QLabel *resLabel;
 
     QPixmap pixmap;
 

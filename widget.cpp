@@ -12,7 +12,7 @@ Widget::Widget(QWidget *parent)
     graphLabel->setPixmap(pixmap);
 
     // M
-    MButton = new QPushButton("璁剧疆M");
+    MButton = new QPushButton(QStringLiteral("设置M"));
     MButton->setFixedWidth(100);
     connect(MButton,SIGNAL(clicked()),this,SLOT(on_MButton_clicked()));
 
@@ -22,7 +22,7 @@ Widget::Widget(QWidget *parent)
     connect(MLine,SIGNAL(returnPressed()),this,SLOT(on_MButton_clicked()));
 
     // insert
-    insertButton = new QPushButton("鎻掑叆");
+    insertButton = new QPushButton(QStringLiteral("插入"));
     insertButton->setFixedWidth(100);
     connect(insertButton,SIGNAL(clicked()),this,SLOT(on_insertButton_clicked()));
     insertButton->setEnabled(false);
@@ -34,7 +34,7 @@ Widget::Widget(QWidget *parent)
     insertLine->setEnabled(false);
 
     //delete
-    deleteButton = new QPushButton("鍒犻櫎");
+    deleteButton = new QPushButton(QStringLiteral("删除"));
     deleteButton->setFixedWidth(100);
     connect(deleteButton,SIGNAL(clicked()),this,SLOT(on_deleteButton_clicked()));
     deleteButton->setEnabled(false);
@@ -45,10 +45,14 @@ Widget::Widget(QWidget *parent)
     connect(deleteLine,SIGNAL(returnPressed()),this,SLOT(on_deleteButton_clicked()));
     deleteLine->setEnabled(false);
 
+    actionLabel = new QLabel;
+    resLabel = new QLabel;
+
     QFormLayout *formLayout = new QFormLayout;
     formLayout->addRow(MLine,MButton);
     formLayout->addRow(insertLine,insertButton);
     formLayout->addRow(deleteLine,deleteButton);
+    formLayout->addRow(actionLabel,resLabel);
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->addWidget(graphLabel,1);
@@ -60,37 +64,78 @@ Widget::Widget(QWidget *parent)
 
 void Widget::on_insertButton_clicked()
 {
-    if (!insertLine->text().isEmpty()) {
-        BT::Insert(t,insertLine->text().toInt(),m);
+    QString text = insertLine->text();
+
+    if (text.isEmpty()) {
+        resLabel->setText("");
+        actionLabel->setText(QStringLiteral("请输入数值"));
+        actionLabel->setStyleSheet("color:red");
+    } else {
         insertLine->clear();
-        displayImage();
+
+        actionLabel->setStyleSheet("color:black");
+        actionLabel->setText(QStringLiteral("插入 ") + text);
+
+        if (BT::Insert(t,text.toInt(),m)) {
+            resLabel->setStyleSheet("color:green");
+            resLabel->setText(QStringLiteral("成功！"));
+            displayImage();
+        } else {
+            resLabel->setStyleSheet("color:red");
+            resLabel->setText(QStringLiteral("失败！"));
+        }
     }
 }
 
 void Widget::on_deleteButton_clicked()
 {
-    BT::Delete(t,deleteLine->text().toInt(),m);
-    deleteLine->clear();
+    QString text = deleteLine->text();
 
-    if (BT::isEmpty(t))
-        updatePixmep("logo.png");
-    else
-        displayImage();
+    if (text.isEmpty()) {
+        resLabel->setText("");
+        actionLabel->setText(QStringLiteral("请输入数值"));
+        actionLabel->setStyleSheet("color:red");
+    } else {
+        deleteLine->clear();
+
+        actionLabel->setStyleSheet("color:black");
+        actionLabel->setText(QStringLiteral("删除 ") + text);
+
+        if (BT::Delete(t,text.toInt(),m)) {
+            resLabel->setStyleSheet("color:green");
+            resLabel->setText(QStringLiteral("成功！"));
+
+            if (BT::isEmpty(t))
+                updatePixmep("logo.png");
+            else
+                displayImage();
+        } else {
+            resLabel->setStyleSheet("color:red");
+            resLabel->setText(QStringLiteral("失败！"));
+        }
+    }
 }
 
 void Widget::on_MButton_clicked()
 {
-    m = MLine->text().toInt();
-    t = BT::NewTree(NULL,m);
+    if (MLine->text().isEmpty()) {
+        actionLabel->setText(QStringLiteral("请输入数值"));
+        actionLabel->setStyleSheet("color:red");
+    }
+    else
+    {
+        m = MLine->text().toInt();
+        t = BT::NewTree(NULL,m);
 
-    MButton->setEnabled(false);
-    MLine->setEnabled(false);
-    insertButton->setEnabled(true);
-    insertLine->setEnabled(true);
-    deleteButton->setEnabled(true);
-    deleteLine->setEnabled(true);
+        MButton->setEnabled(false);
+        MLine->setEnabled(false);
+        insertButton->setEnabled(true);
+        insertLine->setEnabled(true);
+        deleteButton->setEnabled(true);
+        deleteLine->setEnabled(true);
 
-    insertLine->setFocus();
+        insertLine->setFocus();
+    }
 }
 
 void Widget::resizeEvent(QResizeEvent *event)
