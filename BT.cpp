@@ -23,7 +23,12 @@ bool BT::Search(BTree t, KeyType key)
 bool BT::Insert(BTree &t, KeyType key, int m)
 {
     BTree pos;
-    if (BT::__Search(t, key, pos))
+    if (BT::isEmpty(t))
+    {
+        __Insert_Ordered(t, key);
+        return true;
+    }
+    else if (BT::__Search(t, key, pos))
         return false;
     else
     {
