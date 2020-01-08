@@ -61,6 +61,11 @@ void BT::Traverse(BTree t, void Visit(KeyType)) // 升序遍历（递归）
     }
 }
 
+bool BT::isEmpty(BTree t)
+{
+    return !t->key[0];
+}
+
 void BT::__Insert(BTree &node, KeyType key, int m, BTree &root) // 综合插入，指定需插入结点，提供阶数m，提供root
 {
     BT::__Insert_Simple(node, key); // 先简单插入
@@ -103,8 +108,8 @@ bool BT::__Split(BTNode *node) // 分裂，仅在非根结点分裂时使用
     BTree parent = node->parent;
 
     // 新结点处理
-    BTree newNode = BT::NewTree(parent, m);    // 新结点
-    for (int i = (m + 3) / 2; i <= m; i++) // 插入所有关键字
+    BTree newNode = BT::NewTree(parent, m); // 新结点
+    for (int i = (m + 3) / 2; i <= m; i++)  // 插入所有关键字
         BT::__Insert_Ordered(newNode, node->key[i]);
     for (int i = (m + 1) / 2; i <= m; i++) // 插入所有子树并修改其parent
     {
@@ -237,6 +242,8 @@ void BT::__Delete_Terminal(BTNode *node, KeyType key, int m, BTree &t) // 终端结
             {
                 lb->key[lb->key[0] + toAdd] = node->key[toAdd - 1];
                 lb->children[lb->key[0] + toAdd] = node->children[toAdd - 1];
+                if (node->children[toAdd - 1])
+                    node->children[toAdd - 1]->parent = lb;
             }
             lb->children[lb->key[0] + 1] = node->children[0];
             lb->key[0] += toAdd;
@@ -265,6 +272,8 @@ void BT::__Delete_Terminal(BTNode *node, KeyType key, int m, BTree &t) // 终端结
             {
                 rb->key[toAdd - 1] = node->key[toAdd - 1];
                 rb->children[toAdd - 1] = node->children[toAdd - 1];
+                if (node->children[toAdd - 1])
+                    node->children[toAdd - 1]->parent = rb;
             }
             rb->children[0] = node->children[0];
 
@@ -281,6 +290,12 @@ void BT::__Delete_Root(BTree &t, KeyType key) // 根结点删除
 {
     if (t->key[0] > 1)
         BT::__Delete_Simple(t, key);
+    else if (t->children[0])
+        t = t->children[0];
+    else if (t->children[1])
+        t = t->children[1];
     else
-        t = t->children[0] ? t->children[0] : t->children[1];
+        t->key[0]--;
+
+    t->parent = NULL;
 }

@@ -71,7 +71,11 @@ void Widget::on_deleteButton_clicked()
 {
     BT::Delete(t,deleteLine->text().toInt(),m);
     deleteLine->clear();
-    displayImage();
+
+    if (BT::isEmpty(t))
+        updatePixmep("logo.png");
+    else
+        displayImage();
 }
 
 void Widget::on_MButton_clicked()
@@ -103,8 +107,12 @@ void Widget::displayImage()
     Graph::RenderGraph(G);
     Graph::FreeGraph(G);
 
-    pixmap = *new QPixmap("output.png");
+    updatePixmep("output.png");
+}
 
+void Widget::updatePixmep(const char *png)
+{
+    pixmap = *new QPixmap(png);
     graphLabel->setMinimumSize(pixmap.size());
     graphLabel->setPixmap(pixmap.scaled(graphLabel->size(),Qt::KeepAspectRatio));
 }

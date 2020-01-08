@@ -27,6 +27,7 @@ private slots:
 private:
     void resizeEvent(QResizeEvent *event) override;
     void displayImage();
+    void updatePixmep(const char*);
 
     QLabel *graphLabel;
     QPushButton *MButton;
